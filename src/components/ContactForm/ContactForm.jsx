@@ -2,24 +2,27 @@ import { useState } from "react";
 import { nanoid } from 'nanoid';
 import './ContactForm.css'
 import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from "react-redux";
+import { getContacts } from "redux/selectors";
+import { addContact } from "redux/actions";
 
-const ContactForm = ({ onAddContact }) => {
+const ContactForm = () => {
     const [ name, setName ] = useState('')
     const [ number, setNumber ] = useState('')
-
-    const handleNameChange = (evt) => {
-        setName(evt.target.value);
-    };
-
-    const handleNumberChange = (evt) => {
-        setNumber(evt.target.value);
-    };
+    const contacts = useSelector(getContacts);
+    const dispatch = useDispatch();
 
     const handleSubmit = (evt) => {
+        const id = nanoid();
         evt.preventDefault();
-        onAddContact({ name, number, id: nanoid() })
+        dispatch(addContact({ id, name, number }))
         setName('');
         setNumber('');
+
+        localStorage.setItem(
+            'contacts',
+            JSON.stringify([...contacts, { id, name, number}])
+        )
     }
 
     return(
@@ -27,24 +30,26 @@ const ContactForm = ({ onAddContact }) => {
             <p className="contactForm__paragraph">Name</p>
             <input
                 className = "contactForm__input"
+                id="name"
                 type="text"
                 name="name"
                 pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
                 title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
                 required
                 value={name}
-                onChange={handleNameChange}
+                onChange={evt => setName(evt.target.value)}
             />
             <p className="contactForm__paragraph--number">Number</p>
             <input
                 className = "contactForm__input"
+                id="number"
                 type="tel"
                 name="number"
                 pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
                 title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
                 required
                 value={number}
-                onChange={handleNumberChange}
+                onChange={evt => setNumber(evt.target.value)}
             />
             <button className="contactForm__button" type="submit">Add Contact</button>
         </form>
@@ -52,9 +57,6 @@ const ContactForm = ({ onAddContact }) => {
 }
 
 ContactForm.propTypes = {
-    onAddContact: PropTypes.func,
-    handleNameChange: PropTypes.func,
-    handleNumberChange: PropTypes.func,
     handleSubmit: PropTypes.func
 }
 
