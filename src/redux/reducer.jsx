@@ -34,7 +34,6 @@ export const filterReducer = (state = filterInitialState, action) => {
           status: [...state.status, ...action.payload],
         };
       case deleteContact.type:
-        console.log('deleteing contact');
         const updatedContacts = state.status.filter(
           contact => contact.id !== action.payload
         );
